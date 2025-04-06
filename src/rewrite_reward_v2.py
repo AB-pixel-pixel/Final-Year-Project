@@ -72,35 +72,34 @@ class RewardRewriteSystem:
             context_experiences = episode_experiences[start_index:end_index]
 
             # 构建上下文部分
-            context_info = "You need to evalution the following actions based on their efficiency and relevance for task:"
+            context_info = "You need to evaluate the following actions based on their efficiency and relevance for task:"
             flag_initial = True
             for exp_id, exp in enumerate(context_experiences):
                 frame, aid, obs, tsk, act, act_space, rew = exp
                 if flag_initial:
                     context_info += f"At the beginning, we have goal: {tsk}."
-                    context_info += f"Start from frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"Start from frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                     flag_initial = False
                     continue
 
                 # print("type(act_space): ",type(act_space))
                 if exp_id < self.half_window:
-                    context_info += f"In frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"In frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                 elif exp_id == self.half_window:
-                    context_info += f"In frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"In frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                 else:
-                    context_info += f"In frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"In frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                 if exp_id == len(context_experiences) - 1 :
-                    context_info += f"After all the effort, we still have common goal: {tsk}."
+                    context_info += f"After all the effort, we still have a common goal: {tsk}."
 
 
             prompt = """
-We are conducting an analysis of the efficiency and relevance of these actions related to task performance. 
-Please evaluate all actions based on the following four criteria, and provide a score (0 or 1) along with your reasoning:
-1. **Task Completion Effectiveness**: Assess how effectively the target actions contributes to the completion of the task. Assign a score of 1 if the actions successfully advance the task; otherwise, assign a score of 0.
+We are analyzing the efficiency and relevance of these actions related to task performance. 
+Please evaluate all actions based on the following four criteria and provide a score (0 or 1) along with your reasoning:
+1. **Task Completion Effectiveness**: Assess how effectively the target actions contribute to the task's completion. Assign a score of 1 if the actions successfully advance the task; otherwise, assign a score of 0.
 2. **Action Space Expansion**: Determine whether the execution of the target actions increases the potential for further actions. If it does, assign a score of 1; if not, assign a score of 0.
-3. **Observation Coverage Improvement**: Evaluate the extent to which the target actions enhances the coverage of environmental observations. If there is an increase in coverage, assign a score of 1; otherwise, assign a score of 0.
-4. **Collaboration with Other Actions**: Analyze how well the target actions collaborates with the actions of other agents. If they are executing the same actions, assign a score of 0; if they are effectively collaborating on different actions, assign a score of 1."""
-            prompt += "Please output the result in JSON format, structured as follows:"
+3. **Observation Coverage Improvement**: Evaluate the extent to which the target actions enhance the coverage of environmental observations. If coverage increases, assign a score of 1; otherwise, assign a score of 0.
+4. **Collaboration with Other Actions**: Analyze how well the target actions collaborate with the actions of other agents. If they are executing the same actions, assign a score of 0; if they are effectively collaborating on different actions, assign a score of 1."""            prompt += "Please output the result in JSON format, structured as follows:"
             prompt += "{"
             prompt += "  'Inference Part': '...',"
             prompt += "  'Score Section': [{"
@@ -117,7 +116,7 @@ Please evaluate all actions based on the following four criteria, and provide a 
             prompt += "  'Reason for Scoring': '...'"
             prompt += "}"
             # 组合输入模板
-            module_a_template = context_info + "" + prompt # + current_info + "" 
+            module_a_template = context_info + "" + prompt 
             
             return module_a_template
         
@@ -143,25 +142,25 @@ Please evaluate all actions based on the following four criteria, and provide a 
             context_experiences = episode_experiences[start_index:end_index]
             
             # 构建上下文部分
-            context_info = "You need to evalution the following actions based on their efficiency and relevance for task:"
+            context_info = "You need to evalute the following actions based on their efficiency and relevance for the task:"
             flag_initial = True
             for exp_id, exp in enumerate(context_experiences):
                 frame, aid, obs, tsk, act, act_space, rew = exp
                 if flag_initial:
-                    context_info += f"At the beginning, we have goal: {tsk}."
-                    context_info += f"Start from frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"At the beginning, we have a goal: {tsk}."
+                    context_info += f"Start from frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                     flag_initial = False
                     continue
 
                 # print("type(act_space): ",type(act_space))
                 if exp_id < self.half_window:
-                    context_info += f"In frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"In frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                 elif exp_id == self.half_window:
-                    context_info += f"In frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"In frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                 else:
-                    context_info += f"In frame {frame}, Agent {aid} performs action {act} from action space {act_space} based on observation {obs}."
+                    context_info += f"In frame {frame}, Agent {aid} acts {act} from action space {act_space} based on observation {obs}."
                 if exp_id == len(context_experiences) - 1 :
-                    context_info += f"After all the effort, we still have common goal: {tsk}."
+                    context_info += f"After all the effort, we still have a common goal: {tsk}."
 
 
             # 构建提示词部分
