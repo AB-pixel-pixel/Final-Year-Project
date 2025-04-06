@@ -72,7 +72,7 @@ class RewardRewriteSystem:
             context_experiences = episode_experiences[start_index:end_index]
 
             # 构建上下文部分
-            context_info = "You need to evaluate the following actions based on their efficiency and relevance for task:"
+            context_info = "You need to evaluate the following actions based on their efficiency and relevance to task:"
             flag_initial = True
             for exp_id, exp in enumerate(context_experiences):
                 frame, aid, obs, tsk, act, act_space, rew = exp
@@ -142,7 +142,7 @@ Please evaluate all actions based on the following four criteria and provide a s
             context_experiences = episode_experiences[start_index:end_index]
             
             # 构建上下文部分
-            context_info = "You need to evalute the following actions based on their efficiency and relevance for the task:"
+            context_info = "You need to evalute the following actions based on their efficiency and relevance to the task:"
             flag_initial = True
             for exp_id, exp in enumerate(context_experiences):
                 frame, aid, obs, tsk, act, act_space, rew = exp
