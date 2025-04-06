@@ -1,0 +1,6 @@
+{
+    "python.analysis.autoImportCompletions": true,
+    "Codegeex.CompletionDelay": 0.5,
+    "Codegeex.GenerationPreference": "line by line",
+    "python.analysis.typeCheckingMode": "basic"
+}

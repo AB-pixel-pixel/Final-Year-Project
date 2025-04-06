@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+    
+        
+
+        {
+            "name": "Python: Train Main",
+            "type": "python",
+            "request": "launch",
+            "program": "/media/airs/BIN/graduation_design_env/src/train_main_v1.py",
+            "console": "integratedTerminal",
+            "pythonPath": "/home/airs/miniforge3/envs/ai2thor_bin/bin/python",
+            "args": [],
+            "debugOptions": [
+                "RedirectOutput"
+            ],
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "subProcess": false
+        },
+        {
+            "name": "Python: write reward",
+            "type": "python",
+            "request": "launch",
+            "program": "/media/airs/BIN/graduation_design_env/src/rewrite_reward_v2.py",
+            "console": "integratedTerminal",
+            "pythonPath": "/home/airs/miniforge3/envs/ai2thor_bin/bin/python",
+            "args": [],
+            "debugOptions": [
+                "RedirectOutput"
+            ],
+            "env": {},
+            "envFile": "${workspaceFolder}/.env",
+            "subProcess": false
+        }
+    ]
+}
