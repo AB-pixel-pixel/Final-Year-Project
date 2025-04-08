@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Planning Process Playback</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                background-color: #f4f4f4;
+                margin: 0;
+                padding: 20px;
+                font-size: 1.2em; /* Increase font size */  
+            }
+            #image {
+                max-width: 100%;
+                height: auto;
+                margin: 20px auto;
+                display: none; /* Initially hidden */
+            }
+            .highlight {
+                color: red; /* Highlight in red */
+                font-weight: bold;
+            }
+            .container {
+                display: flex;
+                justify-content: space-around;
+                margin-top: 20px;
+            }
+            .column {
+                width: 45%;
+                background: #fff;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                padding: 10px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            .row {
+                margin: 10px 0;
+            }
+            /* Center the image container */
+            .image-container {
+                display: flex;
+                justify-content: center;
+                margin: 20px 0;
+            }
+            .controls {
+                display: flex; /* Use flexbox for horizontal layout */
+                justify-content: center; /* Center the buttons */
+                margin-left: 20px; /* Add space between the image and buttons */
+            }
+            .controls button {
+                font-size: 1.5em; /* Increase font size */
+                padding: 10px 15px; /* Add padding for larger buttons */
+                margin: 0 5px; /* Space between buttons */
+                background-color: #007BFF; /* Background color */
+                color: white; /* Text color */
+                border: none; /* Remove border */
+                border-radius: 5px; /* Rounded corners */
+                cursor: pointer; /* Change cursor to pointer */
+            }
+            .controls button:hover {
+                background-color: #0056b3; /* Darker background on hover */
+            }
+            #currentFrameDisplay, #currentTaskDisplay {
+                font-size: 1.5em; /* Increase font size for current frame and task */
+                margin: 10px 0; /* Spacing for better layout */
+            }
+            #frameRateDisplay {
+                font-size: 1.5em; /* Increase font size for frame rate */
+                margin: 10px 0; /* Spacing for better layout */
+            }
+            /* 修改后的输入框样式 */
+            #jsonPath {
+                font-size: 1.3em; /* 增大字体 */
+                width: 1600px; /* 增加宽度 */
+                height: 40px; /* 增加高度 */
+                padding: 10px; /* 增加内边距 */
+                border: 2px solid #ccc; /* 增加边框宽度 */
+                border-radius: 8px; /* 圆角边框 */
+                text-align: left; /* 左对齐文本 */
+                margin: 10px 0; /* 上下间距 */
+            }
+        </style>
+    </head>
+<body>
+    <h1>Planning Process Playback</h1>
+    <input type="text" id="jsonPath" placeholder="Enter JSON file path" />
+    <button onclick="loadData()">Load Data</button>
+   
+    <div id="currentFrameDisplay">Current Frame: <span id="currentFrame"></span></div>
+    <div id="currentTaskDisplay">Current Task: <span id="currentTask"></span></div>
+    <div id="frameRateDisplay">Frame Rate: <span id="defaultFrameRate"></span> FPS</div>
+    <div class="image-container">
+        <img id="image" src="" alt="Scene Image">
+    </div>
+    <div class="controls">
+        <button id="pauseButton" onclick="togglePause()">Pause</button>
+        <button id="backwardButton" onclick="goBackward()">Backward</button>
+        <button id="forwardButton" onclick="goForward()">Forward</button>
+        <button id="frameRateButton" onclick="changeFrameRate()">Change Frame Rate</button>
+    </div>
+    <h2>Observation and Planning Information</h2>
+    <div class="container">
+        <div class="column" id="agent1">
+            <div class="row">
+                <strong>Agent0 Observation:</strong>
+                <p id="observation1"></p>
+            </div>
+            <div class="row">
+                <strong>Action Tree::</strong>
+                <p id="Actions1"></p>
+            </div>
+            <div class="row">
+                <strong>Agent0 State:</strong>
+                <p id="agent_state1"></p>   
+            </div>
+            <div class="row">
+                <strong>Supplementary Information:</strong>
+                <p id="extra_expression1"></p>
+            </div>
+        </div>
+        <div class="column" id="agent2">
+            <div class="row">
+                <strong>Agent1 Observation:</strong>
+                <p id="observation2"></p>
+            </div>
+            <div class="row">
+                <strong>Action Tree:</strong>
+                <p id="Actions2"></p>
+            </div>
+            <div class="row">
+                <strong>Agent1 State:</strong>
+                <p id="agent_state2"></p>
+            </div>
+            <div class="row">
+                <strong>Supplementary Information:</strong>
+                <p id="extra_expression2"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+        let data = [];
+        let currentFrame = 0;
+        let defaultFrameRate = 25; // Initial frame rate in milliseconds
+        let frameRate = 25; // Initial frame rate in milliseconds
+        let agent1Index = 0; // Index for Agent 1
+        let agent2Index = 0; // Index for Agent 2
+        let isPaused = false; // To track pause state
+        let intervalId; // Declare intervalId at a higher scope
+
+        function startPlayback() {
+            stopPlayback(); // 先清理之前的定时器
+            intervalId = setInterval(() => getFrame(true), 1000 / frameRate); // Automatically move to the next frame
+            isPaused = false;
+            document.getElementById('pauseButton').innerText = 'Pause';
+        }
+
+        function stopPlayback() {
+            isPaused = true;
+            document.getElementById('pauseButton').innerText = 'Play';
+            clearInterval(intervalId); // Stop automatic playback
+        }
+
+        function togglePause() {
+            console.log("Toggle pause", isPaused);
+            if (isPaused) {
+                startPlayback(); // Resume playback
+            } else {
+                stopPlayback(); // Pause playback
+            }
+        }
+
+        function goBackward() {
+            if (currentFrame > 0) {
+                if (currentFrame > 10) {
+                    currentFrame = currentFrame - 10; // Move to the previous frame
+                } else {
+                    currentFrame = 0; // Move to the first frame
+                }
+                inner_frame1 = 0; // Reset inner frames for agents
+                inner_frame2 = 0;
+                // nextFrame(); // Show the new frame
+            }
+            updateCurrentFrameDisplay(); // Update display
+            getFrame(false);
+            console.log("Going back to frame:", currentFrame);
+        }
+
+        function goForward() {  
+            stopPlayback(); // Stop automatic playback
+            if (currentFrame < Object.keys(data).length) {
+                currentFrame++; // Move to the next frame
+                inner_frame1 = 0; // Reset inner frames for agents
+                inner_frame2 = 0;
+            }
+            updateCurrentFrameDisplay(); // Update display
+            getFrame(false);
+            console.log("Going forward to frame:", currentFrame);
+        }
+
+        function changeFrameRate() {
+            const newFrameRate = prompt("Enter new frame rate (FPS):", defaultFrameRate);
+            if (newFrameRate !== null) {
+                const parsedFrameRate = parseInt(newFrameRate);
+                if (!isNaN(parsedFrameRate) && parsedFrameRate > 0) {
+                    defaultFrameRate = parsedFrameRate;
+                    document.getElementById('frameRateDisplay').innerText = defaultFrameRate;
+                    if (!isPaused) {
+                        stopPlayback();
+                        startPlayback();
+                    }
+                } else {
+                    alert("Please enter a valid positive number.");
+                }
+            }
+        }
+
+        async function loadData() {
+            const path = document.getElementById('jsonPath').value;
+            console.log("Loading data from path:", path);
+            try {
+                const response = await fetch('/load_data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ path: path })
+                });
+                if (!response.ok) {
+                    const errorText = await response.text();    
+                    console.error('Error loading data:', errorText);
+                    throw new Error(errorText);
+                }
+                data = await response.json();
+                inner_frame1 = 0;
+                inner_frame2 = 0;
+                currentFrame = 0; // Reset frame count
+                document.getElementById('image').style.display = 'block'; // Show image
+                getFrame(true); // Load the first frame
+                intervalId = setInterval(() => getFrame(true), 1000 / frameRate); // Automatically move to the next frame
+                updateCurrentFrameDisplay(); // Update display
+            } catch (error) {
+                console.error('Error during data loading:', error.message);
+                alert('Error loading data: ' + error.message);
+            }
+        }
+
+        function getFrame(isNextFrame) {
+            if (currentFrame < Object.keys(data).length) {
+                frame = data[currentFrame];
+                document.getElementById('image').src = frame[0]; // Set image
+                if (frame[1].log.length > frame[2].log.length) {
+                    document.getElementById('currentTask').innerText = frame[1].log[0][4]; // Set last string
+                } else {
+                    document.getElementById('currentTask').innerText = frame[2].log[0][4]; // Set last string
+                }
+
+                // 动态调整帧率
+                if (frame[1].log.length > 1 || frame[2].log.length > 1) {
+                    frameRate = 1; // 数据较长，降低帧率
+                } else {
+                    frameRate = defaultFrameRate; // 数据较短，保持高帧率
+                }
+                console.log("Frame rate:", frameRate, "frame[2].log.length", frame[2].log.length, "frame[1].log.length", frame[1].log.length);
+
+                // 更新帧率显示
+                document.getElementById('frameRateDisplay').innerText = `Frame Rate: ${frameRate} FPS`;
+
+                // 更新播放间隔
+                if (isPaused) {
+                    return null;
+                }else{
+                    stopPlayback();
+                    startPlayback();                    
+                }
+
+
+                if (inner_frame1 < frame[1].log.length) {
+                    const log1 = frame[1].log[inner_frame1]; // Get the log for agent 1
+                    const actionChain1 = log1[0].split(' -> ');
+                    const agent1Index = log1[1];
+                    if (agent1Index === null) {
+                        highlightedActionChain1 = "No actions";
+                    } else if (agent1Index === -1) {
+                        highlightedActionChain1 = actionChain1.map((entry, index) => {
+                            const escapedEntry = escapeHtml(entry); // Escape each entry
+                            return escapedEntry;
+                        }).join(' -> ');
+                    } else {
+                        highlightedActionChain1 = actionChain1.map((entry, index) => {
+                            const escapedEntry = escapeHtml(entry); // Escape each entry
+                            return index === agent1Index ? `<span class="highlight">${escapedEntry}</span>` : escapedEntry;
+                        }).join(' -> ');
+                    }
+                    agent_state1 = log1[2];
+                    extra_expression1 = log1[3];
+                    if (isNextFrame) {
+                        inner_frame1++;
+                    }
+                }
+                document.getElementById('observation1').innerText = frame[1].obs; // Set observation
+                document.getElementById('Actions1').innerHTML = highlightedActionChain1; // Set log information
+                document.getElementById('agent_state1').innerText = agent_state1; // Set last string
+                document.getElementById('extra_expression1').innerText = extra_expression1; // Set last string
+
+                if (inner_frame2 < frame[2].log.length) {
+                    const log2 = frame[2].log[inner_frame2]; // Get the log for agent 2
+                    const actionChain2 = log2[0].split(' -> ');
+                    const agent2Index = log2[1];
+                    if (agent2Index == null) {
+                        highlightedActionChain2 = "No actions";
+                    } else if (agent2Index == -1) {
+                        highlightedActionChain2 = actionChain2.map((entry, index) => {
+                            const escapedEntry = escapeHtml(entry); // Escape each entry
+                            return escapedEntry;
+                        }).join(' -> ');
+                    } else {
+                        highlightedActionChain2 = actionChain2.map((entry, index) => {
+                            const escapedEntry = escapeHtml(entry); // Escape each entry
+                            return index === agent2Index ? `<span class="highlight">${escapedEntry}</span>` : escapedEntry;
+                        }).join(' -> ');
+                    }
+                    agent_state2 = log2[2];
+                    extra_expression2 = log2[3];
+                    if (isNextFrame) {
+                        inner_frame2++;
+                    }
+                }
+                document.getElementById('observation2').innerText = frame[2].obs; // Set observation
+                document.getElementById('Actions2').innerHTML = highlightedActionChain2; // Set log information
+                document.getElementById('agent_state2').innerText = agent_state2; // Set last string
+                document.getElementById('extra_expression2').innerText = extra_expression2; // Set last string
+
+                if (isNextFrame) {
+                    if (inner_frame1 == frame[1].log.length && inner_frame2 == frame[2].log.length) {
+                        currentFrame++;
+                        inner_frame1 = 0;
+                        inner_frame2 = 0;
+                        updateCurrentFrameDisplay(); // Update display
+                    }
+                }
+            } else {
+                currentFrame = 0; // Reset to the first frame if end is reached
+                inner_frame1 = 0;
+                inner_frame2 = 0;
+                updateCurrentFrameDisplay(); // Update display
+            }
+        }
+
+        function updateCurrentFrameDisplay() {
+            document.getElementById('currentFrame').innerText = currentFrame;
+        }
+    </script>
+</body>
+</html>

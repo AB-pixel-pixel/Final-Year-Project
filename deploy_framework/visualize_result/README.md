@@ -1,0 +1,1 @@
+直接运行 visualize_result/visualize_app/app.py ，然后将对应的日志文件粘贴到网页输入框中，即可得到可视化结果。
