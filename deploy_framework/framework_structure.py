@@ -1610,16 +1610,6 @@ class Agent():
         self.disposable_planning_reason = ""
         return temp
     
-    def get_description(self):
-        """ 在获取到 available_plans_with_info 之后才能执行这个函数"""
-        description = []
-        data = self.msg
-
-        description.append(f"Agent {data.agent_name} (id:{get_name_to_id(data.agent_name)}) is in {data.current_room} now.\n {construct_holding_description(data.grabbed_objects)}\n {convert_discovery_to_text(data.discovery)}")
-        # {construct_holding_description(data.grabbed_objects)}
-        
-        description.append(f"It's action space:\n{self.state['available_plans_with_info']}")
-        return "".join(description)
     
     def display_action_chain_with_block_info(self) -> str:
         info = self.action_tree.display_action_chain_with_block_info()

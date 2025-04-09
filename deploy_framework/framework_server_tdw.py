@@ -32,7 +32,7 @@ from cwah_time_token import calculate_averages
 # curl -X POST -v http://127.0.0.1:8001/api/close
 
 is_closed : bool = True
-pipeline : Optional[Pipeline]= None
+pipeline : Pipeline = Pipeline() 
 app = FastAPI()
 router = APIRouter()
 

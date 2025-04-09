@@ -30,12 +30,12 @@ def get_name_to_id(name:str) -> int:
     return name_to_id_dict[name]
 
 
-def get_id_to_name(id: int) -> Optional[str]:
+def get_id_to_name(id: int) -> str:
     id_to_name_dict = {
         0: "Alice",
         1: "Bob"
     }
-    return id_to_name_dict.get(id)
+    return id_to_name_dict.get(id,"")
 
 
 def convert_discovery_to_text(data):

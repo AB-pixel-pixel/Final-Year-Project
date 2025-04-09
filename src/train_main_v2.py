@@ -1,3 +1,4 @@
+from os import device_encoding
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -72,7 +73,7 @@ class ReinforcementLearningModel(nn.Module):
     
     
 # 加载编码后的数据
-with open('/media/airs/BIN/graduation_design_env/encoded_data_v4.pkl', 'rb') as f:
+with open('/media/airs/BIN/graduation_design_env/encoded_data_v5.pkl', 'rb') as f:
     encoded_data = pickle.load(f)
 
 
@@ -81,8 +82,8 @@ with open('/media/airs/BIN/graduation_design_env/encoded_data_v4.pkl', 'rb') as 
 
 
 # 预处理数据并加载到显存
-device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
-
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+print("device",device)
 # 将数据转换为张量并预加载到显存
 def preprocess_data(data):
     processed_data = []
@@ -247,7 +248,7 @@ for epoch in range(num_epochs):
     if epoch % 500 == 0:
         # 训练循环中持续更新
         target_model.load_state_dict(online_model.state_dict())
-        model_name = f"V2_{time.time()}_epoch_{epoch}.pth"
+        model_name = f"V5_{time.time()}_epoch_{epoch}.pth"
         # 保存模型
         torch.save(online_model.state_dict(), model_name)
         print("模型已保存")

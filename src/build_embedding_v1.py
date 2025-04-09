@@ -17,8 +17,8 @@ def load_pickle(file_path):
     with open(file_path, 'rb') as f:
         data = pickle.load(f)
     return data
-
-training_data = load_pickle("/media/airs/BIN/graduation_design_env/src/all_scenes_data_v4_2.pkl")
+# /media/airs/BIN/tdw_ex/training_data/try/LMs-collect_train_dataset_v1/eval_result.json
+training_data = load_pickle("/media/airs/BIN/graduation_design_env/all_scenes_data_v5.pkl")
 
 # 定义函数，将文本转换为embedding
 def get_embedding(texts):

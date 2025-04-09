@@ -1,2 +1,5 @@
 encoded_data/
 *.pkl
+saved_model/
+*.pth
+deploy_framework/

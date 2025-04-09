@@ -99,7 +99,8 @@ Please evaluate all actions based on the following four criteria and provide a s
 1. **Task Completion Effectiveness**: Assess how effectively the target actions contribute to the task's completion. Assign a score of 1 if the actions successfully advance the task; otherwise, assign a score of 0.
 2. **Action Space Expansion**: Determine whether the execution of the target actions increases the potential for further actions. If it does, assign a score of 1; if not, assign a score of 0.
 3. **Observation Coverage Improvement**: Evaluate the extent to which the target actions enhance the coverage of environmental observations. If coverage increases, assign a score of 1; otherwise, assign a score of 0.
-4. **Collaboration with Other Actions**: Analyze how well the target actions collaborate with the actions of other agents. If they are executing the same actions, assign a score of 0; if they are effectively collaborating on different actions, assign a score of 1."""            prompt += "Please output the result in JSON format, structured as follows:"
+4. **Collaboration with Other Actions**: Analyze how well the target actions collaborate with the actions of other agents. If they are executing the same actions, assign a score of 0; if they are effectively collaborating on different actions, assign a score of 1."""            
+            prompt += "Please output the result in JSON format, structured as follows:"
             prompt += "{"
             prompt += "  'Inference Part': '...',"
             prompt += "  'Score Section': [{"
@@ -325,7 +326,7 @@ def load_pickle(file_path):
 if __name__ == "__main__":
     start_time = time.time()
     # 假设scene文件夹路径
-    scenes_folder = "/media/airs/BIN/graduation_design_data_training"  # 替换为实际的scene文件夹路径
+    scenes_folder = "/media/airs/BIN/tdw_ex/training_data/try/LMs-collect_train_dataset_v1" # "/media/airs/BIN/graduation_design_data_training"  # 替换为实际的scene文件夹路径
     # 遍历所有scene_x文件夹
     scene_list = [d for d in os.listdir(scenes_folder) if os.path.isdir(os.path.join(scenes_folder, d)) and d.startswith("scene_")]
     all_scenes_data = []  # 存储所有scene的数据
@@ -342,17 +343,18 @@ if __name__ == "__main__":
             print(f"成功读取{scene}的数据，包含{len(scene_data)}条经验")
     print(f"data has {all_scenes_data_len} items.")
 
-    # 创建奖励改写系统，上下文窗口大小为5（奇数）
-    reward_rewriter = RewardRewriteSystem(context_window_size=5)
-    
-    # 对每个scene的经验进行奖励值改写
-    for i, scene_data in enumerate(all_scenes_data):
-        print(f"开始处理scene_{i+1}的数据...")
-        rewritten_scene_data = reward_rewriter.rewrite_rewards(scene_data)
-        print(f"scene_{i+1}的数据处理完成")
-        # 可以将改写后的数据保存或进一步处理
-        all_scenes_data[i] = rewritten_scene_data
-    
+    if False:
+        # 创建奖励改写系统，上下文窗口大小为5（奇数）
+        reward_rewriter = RewardRewriteSystem(context_window_size=5)
+        
+        # 对每个scene的经验进行奖励值改写
+        for i, scene_data in enumerate(all_scenes_data):
+            print(f"开始处理scene_{i+1}的数据...")
+            rewritten_scene_data = reward_rewriter.rewrite_rewards(scene_data)
+            print(f"scene_{i+1}的数据处理完成")
+            # 可以将改写后的数据保存或进一步处理
+            all_scenes_data[i] = rewritten_scene_data
+        
     # 输出改写后的结果示例
     # print("改写后的scene_1经验：")
     # for exp in all_scenes_data[0]:

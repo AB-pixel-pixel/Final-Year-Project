@@ -14,7 +14,7 @@ from typing import Dict
 
 # ---------------------------- 日志系统 ------------------------
 
-
+print("local local")
 
 class LOG_SYSTEM:
     LOG_FILE = None 
@@ -89,9 +89,9 @@ class LOG_SYSTEM:
         self._add_log(step_num=public_pipeline_state.get("step_num"),
                     obs=agent.state.get('observation'),
                     plan=plan,
-                    counter=agent.action_tree.get_current_node_depth() - 1 if agent.action_tree is not None else 0, # TODO maybe occur error
+                    counter=0, 
                     agent_id=agent.agent_id,
-                    planning_stage=agent.stage.name,
+                    planning_stage="",
                     current_task=public_pipeline_state.get("current_task"),
                     supplementary_explanation = supplementary_explanation)
 
