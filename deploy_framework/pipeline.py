@@ -22,7 +22,7 @@ class Pipeline():
         self.embedding_model.eval()
         # 加载强化学习模型
         self.rl_model = ReinforcementLearningModel(768, 128).to(self.device)
-        self.rl_model.load_state_dict(torch.load("/media/airs/BIN/graduation_design_env/V2_1743867171.4562988_epoch_3500.pth", map_location=self.device,weights_only=True))  # 替换为你的模型路径
+        self.rl_model.load_state_dict(torch.load("/media/airs/BIN/graduation_design_env/saved_models/trainning_v1/V2_1743867171.4562988_epoch_3500.pth", map_location=self.device,weights_only=True))  # 替换为你的模型路径
         self.rl_model.eval()
 
         self.FLAG_INIT : bool = True
@@ -33,7 +33,7 @@ class Pipeline():
         # 用於存放一些公共的屬性,例如,human_instruction這些,這樣就不用維護每個agent的相關公共屬性是否一致
         # 同時agent中的公共屬性是不應該拿來使用的
         self.public_pipeline_state : AGENT_STATE = get_initial_agent_state()
-        self.mode = 2
+        self.mode = 1
         self.epsilon = 0.1
 
 
